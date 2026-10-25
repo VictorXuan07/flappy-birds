@@ -26,6 +26,7 @@ function endGame() {
 }
 function reset() {
   state = 'READY'; bird.y = 280; bird.vy = 0; pipes = []; score = 0; clearEffects();
+  speed = 2; // Restore the starting speed each round.
 }
 // 每秒进行六十次物理更新 / Run physics at sixty steps per second
 let previous = 0, elapsed = 0;
@@ -91,7 +92,10 @@ movePipes = () => {
   for (const p of pipes) {
     const overlap = bird.x + bird.width > p.x && bird.x < p.x + 60;
     if (overlap && (bird.y < p.top || bird.y + bird.height > p.bottom)) { endGame(); return; }
-    if (!p.scored && p.x + 60 < bird.x) { p.scored = true; score++; afterScore(); }
+    if (!p.scored && p.x + 60 < bird.x) {
+      p.scored = true; score++; afterScore();
+      if (score % 5 === 0) speed *= 1.1; // Every 5 points, increase the current speed by 10% (no /60 needed).
+    }
   }
 };
 // 保存到当前浏览器 / Save in this browser

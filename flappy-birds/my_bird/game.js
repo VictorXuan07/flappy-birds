@@ -187,7 +187,7 @@ function updateUnlocks() {
 }
 afterScore = () => { best = Math.max(best, score); saveBest(); updateUnlocks(); };
 updateUnlocks();
-statusText.textContent = 'Score 1 to unlock Coder, 2 for Nailong and 3 for Nylong. Change character to start a fresh round.';
+statusText.textContent = 'Score 5 to unlock Coder, 10 for Nailong and 15 for Nylong. Change character to start a fresh round.';
 
 
 

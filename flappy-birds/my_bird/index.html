@@ -2,5 +2,21 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Build Flappy Bird</title><style>
 /* 页面布局 / Page layout */
-body{margin:0;background:#f3f0fa;color:#27213c;font:16px Arial;display:grid;place-items:center;min-height:100vh}main{display:flex;gap:28px;align-items:center;padding:20px}aside{width:230px}h1{font-size:32px}p{line-height:1.5}canvas{background:#beeaff;border-radius:15px;box-shadow:0 10px 35px #38265522;max-width:95vw;touch-action:manipulation}button,select{padding:10px;margin:5px 0;font:inherit}small{display:block;line-height:1.6;color:#625773}@media(max-width:680px){main{flex-direction:column}aside{width:100%}}
+* { box-sizing: border-box; }
+body { margin:0; color:#edf6ff; font:16px/1.6 Arial,sans-serif; min-height:100vh; background:linear-gradient(#050d26dd,#090d27ed),url('pictures/background.png') center / cover fixed; }
+main { display:flex; justify-content:center; align-items:center; gap:48px; min-height:100vh; padding:32px; }
+/* 放大显示，游戏坐标保持不变 / Enlarge the display while keeping game coordinates unchanged. */
+canvas { order:-1; display:block; flex:none; width:min(600px,calc((100svh - 64px) * 2 / 3)); height:auto; border:2px solid #63e9ff; border-radius:20px; box-shadow:0 0 36px #39dfff24,0 24px 70px #0008; background:#08142f; touch-action:manipulation; }
+/* 游戏在左，文字和控件在右 / Game on the left, text and controls on the right. */
+aside { width:300px; padding:28px; border:1px solid #809bce44; border-radius:20px; background:#101b35e8; }
+h1 { margin:12px 0 16px; font-size:42px; line-height:1.1; }
+p { color:#d1def0; }
+small { display:block; color:#9cb4d4; line-height:1.6; }
+aside > small:first-child { color:#6beaff; font-size:12px; letter-spacing:2px; }
+#status { padding:16px 0; border-top:1px solid #809bce33; border-bottom:1px solid #809bce33; }
+button,select { width:100%; padding:12px; margin:8px 0 16px; font:inherit; color:#edf6ff; background:#1b2d50; border:1px solid #6a8aaf; border-radius:10px; }
+button { cursor:pointer; } button:hover { background:#29436d; }
+button:focus-visible,select:focus-visible,canvas:focus-visible { outline:3px solid #fb8aff; outline-offset:4px; }
+/* 小屏幕上下排列，保持比例 / Stack on small screens and preserve proportions. */
+@media(max-width:900px) { main { flex-direction:column; gap:24px; padding:20px; } canvas { width:min(600px,100%); } aside { width:min(600px,100%); } }
 </style></head><body><main><aside><small>AIE1101 · WEB CODING</small><h1>Flappy Bird</h1><p>Space or tap to flap.<br>Fly through the gaps.</p><p id="status">Your canvas is ready.</p><div id="controls"></div><small id="saveNote">Build one feature at a time.</small></aside><canvas id="game" width="400" height="600" tabindex="0" aria-label="Flappy Bird game. Press Space or tap to fly."></canvas></main><script src="game.js"></script></body></html>

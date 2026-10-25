@@ -9,15 +9,18 @@ let gravity = 0.35, flapSpeed = -6, gap = 190, speed = 2;
 let moveBird = () => { }, movePipes = () => { }, drawPipes = () => { };
 let onFlap = () => { }, drawEffects = () => { }, afterScore = () => { };
 let saveBest = () => { }, clearEffects = () => { };
+const backgroundImage = new Image(); // 加载项目内的背景图片 / Load the background picture included with the game.
+backgroundImage.src = 'pictures/background.png';
 // 背景和地面 / Background and ground
 function background() {
-  const sky = ctx.createLinearGradient(0, 0, 0, 550);
-  sky.addColorStop(0, '#a6ddf4'); sky.addColorStop(1, '#e9f8ea');
-  ctx.fillStyle = sky; ctx.fillRect(0, 0, 400, 600);
-  ctx.fillStyle = 'white';
-  for (const x of [35, 190, 340]) { ctx.beginPath(); ctx.ellipse(x, 90, 35, 13, 0, 0, Math.PI * 2); ctx.fill(); }
-  ctx.fillStyle = '#80b55b'; ctx.fillRect(0, 550, 400, 10);
-  ctx.fillStyle = '#c5a279'; ctx.fillRect(0, 560, 400, 40);
+  ctx.fillStyle = '#08142f'; ctx.fillRect(0, 0, 400, 600);
+  if (backgroundImage.complete && backgroundImage.naturalWidth > 0) {
+    const scale = Math.max(400 / backgroundImage.width, 550 / backgroundImage.height); // 等比例填满，避免变形 / Fill the sky without stretching the picture.
+    const width = backgroundImage.width * scale, height = backgroundImage.height * scale;
+    ctx.drawImage(backgroundImage, (400 - width) / 2, (550 - height) / 2, width, height);
+  }
+  ctx.fillStyle = '#101b35'; ctx.fillRect(0, 550, 400, 50);
+  ctx.fillStyle = '#63e9ff'; ctx.fillRect(0, 550, 400, 3);
 }
 let drawBird = () => { };
 function endGame() {
@@ -35,9 +38,13 @@ function frame(time) {
   elapsed += Math.min((time - previous) / 1000, 0.05); previous = time;
   while (elapsed >= 1 / 60) { moveBird(); movePipes(); elapsed -= 1 / 60; }
   background(); drawPipes(); drawEffects(); drawBird();
-  ctx.fillStyle = '#27213c'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#08142fe6'; ctx.fillRect(48, 12, 304, 42); // 深色底保证分数清晰 / Dark backing keeps scores readable.
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
   ctx.fillText(`Score ${score}   Best ${best}`, 200, 40);
-  if (state !== 'PLAYING') { ctx.font = 'bold 24px Arial'; ctx.fillText(state === 'READY' ? 'Ready to fly' : 'Game over', 200, 225); }
+  if (state !== 'PLAYING') {
+    ctx.fillStyle = '#08142fe6'; ctx.fillRect(60, 190, 280, 56);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 24px Arial'; ctx.fillText(state === 'READY' ? 'Ready to fly' : 'Game over', 200, 225);
+  }
   requestAnimationFrame(frame);
 }
 // 画出小鸟 / Draw the bird
@@ -141,10 +148,16 @@ clearEffects = () => { particles = []; };
 const classicBird = drawBird;
 const skins = [
   { name: 'Classic', need: 0, labels: ['', ''] },
-  { name: 'Boss', need: 1, labels: ['Overtime', 'Meetings'] },
-  { name: 'Coder', need: 2, labels: ['Bug', 'Deadline'] },
-  { name: 'Crypto', need: 3, labels: ['Market', 'Volatility'] }
+  { name: 'Coder', need: 5, labels: ['Bug', 'Deadline'] },
+  { name: 'Nailong', need: 10, labels: ['hahaha', 'eee'], picture: 'pictures/nailong.png' },
+  { name: 'Nylong', need: 15, labels: ['Pre', 'Exam'], picture: 'pictures/nylon.png' }
 ];
+for (const s of skins) {
+  if (s.picture) {
+    s.image = new Image(); // 提前加载角色图片 / Load character pictures before drawing them.
+    s.image.src = s.picture;
+  }
+}
 let skin = 0;
 const label = document.createElement('label'); label.textContent = 'Character '; label.htmlFor = 'skin'; controls.append(document.createElement('br'), label);
 const picker = document.createElement('select'); picker.id = 'skin'; controls.append(picker);
@@ -152,13 +165,18 @@ for (const s of skins) { const option = document.createElement('option'); option
 picker.onchange = () => { skin = picker.selectedIndex; pipeLabels = skins[skin].labels; reset(); };
 drawBird = () => {
   if (skin === 0) { classicBird(); return; }
-  ctx.fillStyle = skin === 3 ? '#e8b741' : '#634585'; ctx.fillRect(bird.x, bird.y, 30, 25);
-  ctx.textAlign = 'center'; ctx.fillStyle = 'white'; ctx.font = 'bold 17px Arial';
   if (skin === 1) {
-    ctx.fillStyle = '#f4c49d'; ctx.beginPath(); ctx.arc(bird.x + 15, bird.y + 10, 8, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#27213c'; ctx.fillRect(bird.x + 9, bird.y + 7, 12, 3);
-    ctx.fillStyle = 'white'; ctx.fillRect(bird.x + 13, bird.y + 18, 4, 7);
-  } else { ctx.fillText(skin === 2 ? '<>' : '$', bird.x + 15, bird.y + 19); }
+    ctx.fillStyle = '#634585'; ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+    ctx.textAlign = 'center'; ctx.fillStyle = 'white'; ctx.font = 'bold 17px Arial';
+    ctx.fillText('<>', bird.x + 15, bird.y + 19);
+    return;
+  }
+  const image = skins[skin].image;
+  if (image.complete && image.naturalWidth > 0) {
+    const scale = Math.min(bird.width / image.width, bird.height / image.height); // 保持图片比例并放进原来的碰撞框 / Fit the picture inside the original hitbox without stretching.
+    const width = image.width * scale, height = image.height * scale;
+    ctx.drawImage(image, bird.x + (bird.width - width) / 2, bird.y + (bird.height - height) / 2, width, height);
+  } else { classicBird(); } // 图片未加载时仍显示小鸟 / Show the classic bird while the picture is unavailable.
 };
 // 用最高分解锁角色 / Unlock characters with the best score
 function updateUnlocks() {
@@ -169,7 +187,7 @@ function updateUnlocks() {
 }
 afterScore = () => { best = Math.max(best, score); saveBest(); updateUnlocks(); };
 updateUnlocks();
-statusText.textContent = 'Score 1 to unlock Boss, 2 for Coder and 3 for Crypto. Change character to start a fresh round.';
+statusText.textContent = 'Score 1 to unlock Coder, 2 for Nailong and 3 for Nylong. Change character to start a fresh round.';
 
 
 

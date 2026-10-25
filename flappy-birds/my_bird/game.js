@@ -27,6 +27,7 @@ function endGame() {
 function reset() {
   state = 'READY'; bird.y = 280; bird.vy = 0; pipes = []; score = 0; clearEffects();
   speed = 2; // Restore the starting speed each round.
+  gap = 190; // 每局恢复原来的管道开口 / Restore the original pipe opening each round.
 }
 // 每秒进行六十次物理更新 / Run physics at sixty steps per second
 let previous = 0, elapsed = 0;
@@ -94,7 +95,10 @@ movePipes = () => {
     if (overlap && (bird.y < p.top || bird.y + bird.height > p.bottom)) { endGame(); return; }
     if (!p.scored && p.x + 60 < bird.x) {
       p.scored = true; score++; afterScore();
-      if (score % 5 === 0) speed *= 1.1; // Every 5 points, increase the current speed by 10% (no /60 needed).
+      if (score % 5 === 0) {
+        speed *= 1.1; // Every 5 points, increase the current speed by 10% (no /60 needed).
+        gap *= 0.97; // 每得5分，新管道开口缩小3%，保留当前宽度的97% / Every 5 points, new pipe openings keep 97% of the current gap.
+      }
     }
   }
 };

@@ -1,0 +1,7 @@
+# Ignore everything except this file and the game source directory.
+/*
+!/.gitignore
+!/flappy-birds/
+
+/flappy-birds/*
+!/flappy-birds/my_bird/
